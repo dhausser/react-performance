@@ -2,8 +2,7 @@
 // http://localhost:3000/isolated/exercise/04.js
 
 import * as React from 'react'
-// 🐨 import the useVirtual hook from react-virtual
-// import {useVirtual} from 'react-virtual'
+import {useVirtual} from 'react-virtual'
 import {useCombobox} from '../use-combobox'
 import {getItems} from '../workerized-filter-cities'
 import {useAsync, useForceRerender} from '../utils'
@@ -24,41 +23,30 @@ function Menu({
   getItemProps,
   highlightedIndex,
   selectedItem,
-  // 🐨 accept listRef, virtualRows, totalHeight
+  listRef,
+  virtualRows,
+  totalHeight,
 }) {
   return (
-    // 🐨 pass the listRef to the `getMenuProps` prop getter function below:
-    // 💰  getMenuProps({ref: listRef})
-    <ul {...getMenuProps()}>
-      {/* 🐨 add a li here with an inline style for the height set to the totalHeight */}
-      {/*
-        🦉 this is to ensure that the scrollable area of the <ul /> is the
-        same height it would be if we were actually rendering everything
-      */}
-      {/* instead of mapping the "items" we're going to map over the virtualRows */}
-      {/* 🐨 swap `items` with `virtualRows` */}
-      {/*
-        💰 a virtual row is an object with the following properties:
-        - index: you can use this to get the `item` via `items[index]`
-        - size: set the "height" style to this value
-        - start: this is how many pixels from the scrollTop this item should be
-      */}
-      {/* 💣 delete the second argument of "index", you can get that from the virtualRow object */}
-      {items.map((item, index) => (
-        <ListItem
-          key={item.id}
-          getItemProps={getItemProps}
-          item={item}
-          index={index}
-          isSelected={selectedItem?.id === item.id}
-          isHighlighted={highlightedIndex === index}
-          // 🐨 pass a style prop, you can get the inline styles from getVirtualRowStyles()
-          // make sure to pass an object with the size (the height of the row)
-          // and start (where the row starts relative to the scrollTop of its container).
-        >
-          {item.name}
-        </ListItem>
-      ))}
+    <ul {...getMenuProps({ref: listRef})}>
+      <li style={{height: totalHeight}}></li>
+      {virtualRows.map(({index, size, start}) => {
+        const item = items[index]
+        if (!item) return null
+        return (
+          <ListItem
+            key={item.id}
+            getItemProps={getItemProps}
+            item={item}
+            index={index}
+            isSelected={selectedItem?.id === item.id}
+            isHighlighted={highlightedIndex === index}
+            style={getVirtualRowStyles({size, start})}
+          >
+            {item.name}
+          </ListItem>
+        )
+      })}
     </ul>
   )
 }
@@ -69,7 +57,7 @@ function ListItem({
   index,
   isHighlighted,
   isSelected,
-  // 🐨 accept the style prop
+  style,
   ...props
 }) {
   return (
@@ -80,7 +68,7 @@ function ListItem({
         style: {
           backgroundColor: isHighlighted ? 'lightgray' : 'inherit',
           fontWeight: isSelected ? 'bold' : 'normal',
-          // 🐨 spread the incoming styles onto this inline style object
+          ...style,
         },
         ...props,
       })}
