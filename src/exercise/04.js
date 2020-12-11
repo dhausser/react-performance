@@ -28,7 +28,7 @@ function Menu({
 }) {
   return (
     <ul {...getMenuProps({ref: listRef})}>
-      <li style={{height: totalHeight}}></li>
+      <li style={{height: totalHeight}} />
       {virtualRows.map(({index, size, start}) => {
         const item = items[index]
         if (!item) return null
