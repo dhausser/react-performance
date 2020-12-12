@@ -11,6 +11,7 @@ import {
 } from '../utils'
 
 const AppStateContext = React.createContext()
+const AppDispatchContext = React.createContext()
 
 const initialGrid = Array.from({length: 100}, () =>
   Array.from({length: 100}, () => Math.random() * 100),
@@ -38,16 +39,25 @@ function AppProvider({children}) {
     dogName: '',
     grid: initialGrid,
   })
-  const value = React.useMemo(() => [state, dispatch], [state])
   return (
-    <AppStateContext.Provider value={value}>
-      {children}
+    <AppStateContext.Provider value={state}>
+      <AppDispatchContext.Provider value={dispatch}>
+        {children}
+      </AppDispatchContext.Provider>
     </AppStateContext.Provider>
   )
 }
 
 function useAppState() {
   const context = React.useContext(AppStateContext)
+  if (!context) {
+    throw new Error('useAppState must be used within the AppProvider')
+  }
+  return context
+}
+
+function useAppDispatch() {
+  const context = React.useContext(AppDispatchContext)
   if (!context) {
     throw new Error('useAppState must be used within the AppProvider')
   }
