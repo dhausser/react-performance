@@ -1,5 +1,6 @@
 // Fix "perf death by a thousand cuts"
-// http://localhost:3000/isolated/exercise/06.js
+// 💯 limit the work consuming components do
+// http://localhost:3000/isolated/final/06.extra-2.js
 
 import * as React from 'react'
 import {
@@ -73,14 +74,12 @@ function dogReducer(state, action) {
 }
 
 function DogProvider(props) {
-  const [state, dispatch] = React.useReducer(dogReducer, {
-    dogName: '',
-  })
+  const [state, dispatch] = React.useReducer(dogReducer, {dogName: ''})
   const value = [state, dispatch]
   return <DogContext.Provider value={value} {...props} />
 }
 
-function useDogState(params) {
+function useDogState() {
   const context = React.useContext(DogContext)
   if (!context) {
     throw new Error('useDogState must be used within the DogStateProvider')
@@ -109,6 +108,11 @@ Grid = React.memo(Grid)
 function Cell({row, column}) {
   const state = useAppState()
   const cell = state.grid[row][column]
+  return <CellImpl cell={cell} row={row} column={column} />
+}
+Cell = React.memo(Cell)
+
+function CellImpl({cell, row, column}) {
   const dispatch = useAppDispatch()
   const handleClick = () => dispatch({type: 'UPDATE_GRID_CELL', row, column})
   return (
@@ -124,7 +128,7 @@ function Cell({row, column}) {
     </button>
   )
 }
-Cell = React.memo(Cell)
+CellImpl = React.memo(CellImpl)
 
 function DogNameInput() {
   const [state, dispatch] = useDogState()
